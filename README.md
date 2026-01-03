@@ -1,4 +1,3 @@
-# Flappypig
 import type React from "react"
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
@@ -41,25 +40,30 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html: `
-              // Suppress errors from browser extensions (MetaMask, etc.)
+              // Suppress errors from browser extensions and v0 infrastructure
               window.addEventListener('unhandledrejection', function(event) {
-                // Check if error is from MetaMask or ServiceWorker
                 const reason = event.reason?.message || event.reason?.toString() || '';
-                if (reason.includes('MetaMask') || 
-                    reason.includes('ServiceWorker') ||
-                    reason.includes('ethereum')) {
+                // Suppress v0 ServiceWorker, MetaMask, and other external errors
+                if (reason.includes('ServiceWorker') || 
+                    reason.includes('__v0_sw') ||
+                    reason.includes('MetaMask') || 
+                    reason.includes('ethereum') ||
+                    reason.includes('Worker disallowed')) {
                   event.preventDefault();
-                  console.log('Suppressed external error:', reason);
+                  // Silent - don't log to keep console clean
+                  return;
                 }
               });
               
               window.addEventListener('error', function(event) {
                 const message = event.message || '';
-                if (message.includes('MetaMask') || 
-                    message.includes('ServiceWorker') ||
-                    message.includes('ethereum')) {
+                if (message.includes('ServiceWorker') || 
+                    message.includes('__v0_sw') ||
+                    message.includes('MetaMask') || 
+                    message.includes('ethereum') ||
+                    message.includes('Worker disallowed')) {
                   event.preventDefault();
-                  console.log('Suppressed external error:', message);
+                  return;
                 }
               });
             `,
